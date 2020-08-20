@@ -1,14 +1,12 @@
-#Python libraries that we need to import for our bot
 import random
 from flask import Flask, request
 from pymessenger.bot import Bot
 
 app = Flask(__name__)
-ACCESS_TOKEN = 'EAAEdtRujExABAKpNXih12vFdUK5r7yAgBy2ZBfavO6SyD0qQQdqx6OByLeuQw3FEVEzsbqsxF9VEHcSeo36rrkBBvyr5Pa2ZBiNB86iQjQeMvTfIeTwSD4lOSH4lCZA53oh8OuDVVw583jFIcZCI6HroJxdCC7JKv2nstERpFqgMF1qgiOkC'
-VERIFY_TOKEN = 'DITMECOSOC'
+ACCESS_TOKEN = 'EAAEdtRujExABAEHzSs5k3nc5Ld1JS0PLOKZC9VLuP8dzOmLC4zHdJE3NMqfoWIxQSrLlErUVZANzHpm2Px0mdS6ADMuoVmwYZBdQM8pZBKbMEhQ261tXeWjpk4HjBXfkyuUkQQgGKYdmNzWPvQnfKsoqToH79Mdh9eTF25fZAG7LJnqsvoTKG'
+VERIFY_TOKEN = 'ditmecosoc'
 bot = Bot(ACCESS_TOKEN)
 
-chatlog = open('chatlog.txt', 'a')
 #We will receive messages that Facebook sends our bot at this endpoint 
 @app.route("/", methods=['GET', 'POST'])
 def receive_message():
@@ -21,8 +19,6 @@ def receive_message():
     else:
         # get whatever message a user sent the bot
        output = request.get_json()
-       print(output)
-       chatlog.write(output)
        for event in output['entry']:
           messaging = event['messaging']
           for message in messaging:
@@ -31,11 +27,11 @@ def receive_message():
                 recipient_id = message['sender']['id']
                 if message['message'].get('text'):
                     response_sent_text = get_message()
-                    send_message(recipient_id, response_sent_text)
+                    send_message(recipient_id, "Hà Nội địt con mẹ mày")
                 #if user sends us a GIF, photo,video, or any other non-text item
                 if message['message'].get('attachments'):
-                    response_sent_nontext = get_message()
-                    send_message(recipient_id, response_sent_nontext)
+                    # response_sent_nontext = get_message()
+                    send_message(recipient_id, str(message['message']))
     return "Message Processed"
 
 
@@ -49,7 +45,7 @@ def verify_fb_token(token_sent):
 
 #chooses a random message to send to the user
 def get_message():
-    sample_responses = ["sủa cặc"]
+    sample_responses = ["Sua cc", "Bu cu", "dit me co soc", "du cang it thoi"]
     # return selected item to the user
     return random.choice(sample_responses)
 
