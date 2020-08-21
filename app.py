@@ -10,6 +10,9 @@ page = requests.get(URL)
 soup = BeautifulSoup(page.content, 'html.parser')
 # print(soup.prettify())
 sauce = list(soup.find('tbody').find_all('tr'))
+# global new_user
+new_user = True
+greeting_message = 'Xin chào, cảm ơn bạn đã thử sử dụng VàngPP.\nĐể tìm giá vàng sjc hãy nhập cú pháp "sjc [tên thành phố]".\nĐể cập nhật database hãy nhập "update sjc". Đôi khi bạn sẽ nhận được phản hồi chậm hơn thông thường do mình đang host tại server miễn phí, xin hãy thông cảm ;-;'
 
 metadata = dict({
     gold.find('th').contents[0].strip('\n\r '): {
@@ -72,8 +75,16 @@ def receive_message():
                 recipient_id = message['sender']['id']
                 if message['message'].get('text'):
                     mess = message['message']['text']
-                    if mess == "update sjc":
+                    global new_user
+                    if new_user:
+                      send_message(recipient_id, greeting_message)
+                      new_user = False
+                    elif mess == 'reset':
+                      new_user = True
+                      send_message(recipient_id, 'Đã reset')
+                    elif mess == 'update sjc':
                       update_sjc()
+                      send_message(recipient_id, 'Đã cập nhật')
                     else:
                       send_message(recipient_id, ask_sjc(mess))
                 #if user sends us a GIF, photo,video, or any other non-text item
