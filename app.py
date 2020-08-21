@@ -2,56 +2,8 @@ import random
 from flask import Flask, request
 from pymessenger.bot import Bot
 
-import requests
-from bs4 import BeautifulSoup
-
-URL = 'https://tygia.vn/gia-vang'
-page = requests.get(URL)
-soup = BeautifulSoup(page.content, 'html.parser')
-# print(soup.prettify())
-sauce = list(soup.find('tbody').find_all('tr'))
-# global new_user
-new_user = True
-greeting_message = 'Xin chào, cảm ơn bạn đã thử sử dụng VàngPP.\nĐể tìm giá vàng sjc hãy nhập cú pháp "sjc [tên thành phố]".\nĐể cập nhật database hãy nhập "update sjc". Đôi khi bạn sẽ nhận được phản hồi chậm hơn thông thường do mình đang host tại server miễn phí, xin hãy thông cảm ;-;'
-
-metadata = dict({
-    gold.find('th').contents[0].strip('\n\r '): {
-    "buy":gold.find('span', class_='text-green font-weight-bold').contents[0],
-    "sell":gold.find('span', class_='text-red font-weight-bold').contents[0]
-    } for gold in sauce[8:23]
-})
-
-metadata["Hồ Chí Minh"] = {
-    "buy":sauce[0].find('span', class_='text-green font-weight-bold').contents[0], 
-    "sell":sauce[0].find('span', class_='text-red font-weight-bold').contents[0]
-}
-
-def update_sjc():
-    URL = 'https://tygia.vn/gia-vang'
-    page = requests.get(URL)
-    soup = BeautifulSoup(page.content, 'html.parser')
-    sauce = list(soup.find('tbody').find_all('tr'))
-    metadata = dict({
-        gold.find('th').contents[0].strip('\n\r '): {
-            "buy":gold.find('span', class_='text-green font-weight-bold').contents[0],
-            "sell":gold.find('span', class_='text-red font-weight-bold').contents[0]
-        } for gold in sauce[8:23]
-    })
-    metadata["Hồ Chí Minh"] = {
-        "buy":sauce[0].find('span', class_='text-green font-weight-bold').contents[0], 
-        "sell":sauce[0].find('span', class_='text-red font-weight-bold').contents[0]
-    }
-    return "data updated"
-
-def ask_sjc(city):
-    city = city.strip(" ")
-    if city in metadata:
-        return "giá sjc mua của " + city + " là " + metadata[city]["buy"] + "VND, bán là " + metadata[city]["sell"] + 'VND'
-    else:
-        return city + " không có hoặc hãy kiểm tra dấu và viết hoa"
-
 app = Flask(__name__)
-ACCESS_TOKEN = 'EAAEdtRujExABAEHzSs5k3nc5Ld1JS0PLOKZC9VLuP8dzOmLC4zHdJE3NMqfoWIxQSrLlErUVZANzHpm2Px0mdS6ADMuoVmwYZBdQM8pZBKbMEhQ261tXeWjpk4HjBXfkyuUkQQgGKYdmNzWPvQnfKsoqToH79Mdh9eTF25fZAG7LJnqsvoTKG'
+ACCESS_TOKEN = 'EAAEdtRujExABAKzzZCIDMpxn5DD5dXHLCgAeLuoSU2PA35Au5A655xpZBhawl96jMOTgVPaWDShV5ZATL1YP8WERJ0mQusPZByEpBPuXClt33C0KWe9yPxTmZBxsZCT4PMuryZA7eQq757a0wAuXTqljWL4GBpBMga6wwxYtujdZAsI6Rrp90EVK'
 VERIFY_TOKEN = 'ditmecosoc'
 bot = Bot(ACCESS_TOKEN)
 
@@ -74,23 +26,12 @@ def receive_message():
                 #Facebook Messenger ID for user so we know where to send response back to
                 recipient_id = message['sender']['id']
                 if message['message'].get('text'):
-                    mess = message['message']['text']
-                    global new_user
-                    if new_user:
-                      send_message(recipient_id, greeting_message)
-                      new_user = False
-                    elif mess == 'reset':
-                      new_user = True
-                      send_message(recipient_id, 'Đã reset')
-                    elif mess == 'update sjc':
-                      update_sjc()
-                      send_message(recipient_id, 'Đã cập nhật')
-                    else:
-                      send_message(recipient_id, ask_sjc(mess))
+                    response_sent_text = get_message()
+                    send_message(recipient_id, response_sent_text)
                 #if user sends us a GIF, photo,video, or any other non-text item
                 if message['message'].get('attachments'):
-                    # response_sent_nontext = get_message()
-                    send_message(recipient_id, str(message['message']))
+                    response_sent_nontext = get_message()
+                    send_message(recipient_id, response_sent_nontext)
     return "Message Processed"
 
 
@@ -104,7 +45,7 @@ def verify_fb_token(token_sent):
 
 #chooses a random message to send to the user
 def get_message():
-    sample_responses = ["Sua cc", "Bu cu", "dit me co soc", "du cang it thoi"]
+    sample_responses = ["You are stunning!", "We're proud of you.", "Keep on being you!", "We're greatful to know you :)"]
     # return selected item to the user
     return random.choice(sample_responses)
 
@@ -116,5 +57,3 @@ def send_message(recipient_id, response):
 
 if __name__ == "__main__":
     app.run()
-
-
